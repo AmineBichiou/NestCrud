@@ -32,9 +32,7 @@ export class UsersService {
       email: createDto.email,
       status: createDto.status ?? 'inactive',
     };
-    // headerInfo peut être utilisé ici si nécessaire (log, audit...), par ex console.log
     if (headerInfo) {
-      // exemple simple
       console.log('Header Authorization reçu:', headerInfo);
     }
     this.users.push(newUser);
