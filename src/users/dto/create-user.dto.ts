@@ -1,0 +1,15 @@
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString({ message: 'Le nom d’utilisateur doit être une chaîne de caractères.' })
+  @IsNotEmpty({ message: 'Le champ username est obligatoire.' })
+  username: string;
+
+  @IsEmail({}, { message: 'L’adresse e-mail doit être valide (ex: name@example.com).' })
+  @IsNotEmpty({ message: 'Le champ email est obligatoire.' })
+  email: string;
+
+  @IsOptional()
+  @IsString({ message: 'Le statut doit être une chaîne (ex: active, inactive).' })
+  status?: string;
+}
