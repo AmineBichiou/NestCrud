@@ -1,59 +1,51 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Headers,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-  ParseIntPipe,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Query, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  @Get()
-  getAll(@Query('status') status?: string) {
-    return this.usersService.findAll(status);
+export class UserController {
+  constructor(private readonly userService: UsersService) {}
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    return this.userService.create(dto);
   }
-
-  @Get('active/:status')
-  getActiveByParam(@Param('status') status: string) {
-    return this.usersService.findActiveByStatus(status);
+  @Put('activate')
+  activate(
+    @Query('email') email: string,
+    @Query('password') password: string,
+  ) {
+    return this.userService.activate(email, password);
   }
 
   @Get(':id')
-  getById(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findById(id);
+  findById(@Param('id') id: string) {
+    return this.userService.findOneById(id);
   }
 
-  @Post()
-  create(
-    @Body() createUserDto: CreateUserDto,
-    @Headers('authorization') authorization?: string,
-  ) {
-    return this.usersService.create(createUserDto, authorization);
+  @Get('email/:email')
+  findByEmail(@Param('email') email: string) {
+    return this.userService.findOneByEmail(email);
+  }
+  @Get('active')
+  findActive() {
+    return this.userService.findActive();
   }
 
+  // ----------- UPDATE PARTIAL -----------
   @Put(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.userService.update(id, dto);
   }
 
+  // ----------- REMOVE -----------
   @Delete(':id')
-  @HttpCode(204)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    this.usersService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.userService.remove(id);
   }
+  @Get()
+  findAll() {
+    return this.userService.findAll();
+  }
+  
 }

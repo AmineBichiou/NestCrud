@@ -1,59 +1,74 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { User } from './interfaces/user.interface';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MongoRepository } from 'typeorm';
+import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: 1, username: 'Mohamed', email: 'mohamed@esprit.tn', status: 'active' },
-    { id: 2, username: 'Sarra', email: 'sarra@esprit.tn', status: 'inactive' },
-    { id: 3, username: 'Ali', email: 'ali@esprit.tn', status: 'inactive' },
-    { id: 4, username: 'Eya', email: 'eya@esprit.tn', status: 'active' },
-  ];
+  private readonly logger = new Logger(UsersService.name);
 
-  private nextId = this.users.length + 1;
-
-  findAll(filterStatus?: string): User[] {
-    if (!filterStatus) return this.users;
-    return this.users.filter(u => u.status === filterStatus);
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepo: MongoRepository<User>,
+  ) {}
+  async create(dto: CreateUserDto) {
+    const user = this.userRepo.create({
+      ...dto,
+      active: false,
+    });
+    return this.userRepo.save(user);
   }
 
-  findById(id: number): User {
-    const user = this.users.find(u => u.id === id);
-    if (!user) throw new NotFoundException(`Utilisateur avec id ${id} introuvable.`);
-    return user;
-  }
+  async findAll(): Promise<User[]> {
+    const users = await this.userRepo.find();
+    if (!users || users.length === 0) {
+      return [];
 
-  create(createDto: CreateUserDto, headerInfo?: string): User {
-    const newUser: User = {
-      id: this.nextId++,
-      username: createDto.username,
-      email: createDto.email,
-      status: createDto.status ?? 'inactive',
-    };
-    if (headerInfo) {
-      console.log('Header Authorization reçu:', headerInfo);
     }
-    this.users.push(newUser);
-    return newUser;
+    return users;
   }
 
-  update(id: number, updateDto: UpdateUserDto): User {
-    const userIndex = this.users.findIndex(u => u.id === id);
-    if (userIndex === -1) throw new NotFoundException(`Utilisateur avec id ${id} introuvable.`);
-    const updated = { ...this.users[userIndex], ...updateDto };
-    this.users[userIndex] = updated;
-    return updated;
+async findOneById(id: string): Promise<User> {
+  const user = await this.userRepo.findOne({ where: { id } });
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+  return user;
+}
+
+
+  findOneByEmail(email: string) {
+    return this.userRepo.findOneBy({ email });
   }
 
-  remove(id: number): void {
-    const idx = this.users.findIndex(u => u.id === id);
-    if (idx === -1) throw new NotFoundException(`Utilisateur avec id ${id} introuvable.`);
-    this.users.splice(idx, 1);
+  findActive() {
+    return this.userRepo.find({ where: { active: true } });
+  }
+  async update(id: string, dto: UpdateUserDto) {
+    await this.userRepo.update(id, dto);
+    return this.findOneById(id);
+  }
+  async remove(id: string) {
+    const user = await this.findOneById(id);
+    if (!user) {
+      return { deleted: false };
+    }
+    await this.userRepo.remove(user);
+    return { deleted: true };
   }
 
-  findActiveByStatus(status: string): User[] {
-    return this.users.filter(u => u.status === status);
+  async activate(email: string, password: string) {
+    const user = await this.findOneByEmail(email);
+    if (!user) return null;
+
+    if (user.password !== password) return null;
+
+    user.active = true;
+    await this.userRepo.save(user);
+
+    return user;
   }
 }

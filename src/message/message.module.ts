@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessagesController } from './messages.controller';
 import { MessagesService } from './messages.service';
-import { MessagesRepository } from './messages.repository';
+import { Message } from './message.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Message])], // needed for @InjectRepository
   controllers: [MessagesController],
-  providers: [MessagesService, MessagesRepository],
+  providers: [MessagesService],
+  exports: [MessagesService],
 })
 export class MessagesModule {}

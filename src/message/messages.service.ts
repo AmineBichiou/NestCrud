@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { MessagesRepository } from './messages.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Message } from './message.entity';
 
 @Injectable()
 export class MessagesService {
-  constructor(private messagesRepository: MessagesRepository) {}
+  constructor(
+    @InjectRepository(Message)
+    private readonly repo: Repository<Message>, // This is now correct
+  ) {}
 
-  findOne(id: string) {
-    return this.messagesRepository.findOne(id);
+  async create(content: string, status?: string) {
+    const msg = this.repo.create({ content, status });
+    return this.repo.save(msg);
   }
 
   findAll() {
-    return this.messagesRepository.findAll();
-  }
-
-  create(content: string) {
-    return this.messagesRepository.create(content);
+    return this.repo.find();
   }
 }
