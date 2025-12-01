@@ -60,6 +60,16 @@ async findOneById(id: string): Promise<User> {
     await this.userRepo.update(id, dto);
     return this.findOneById(id);
   }
+
+  // async update( id : string, dto: UpdateUserDto) {
+  //   const exist = await this.findOneById(id);
+  //   if (!exist) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  //   const updated = Object.assign(exist, dto);
+  //   return this.userRepo.save(updated);
+  // } methode class use this in dev 
+
   async remove(id: string) {
     const user = await this.findOneById(id);
     if (!user) {
