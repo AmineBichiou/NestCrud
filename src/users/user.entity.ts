@@ -3,7 +3,7 @@ import { Entity, Column, ObjectIdColumn, BeforeInsert, AfterInsert, AfterUpdate,
 @Entity()
 export class User {
   @ObjectIdColumn()
-  id: string; // MongoDB ObjectId
+  id: string; 
 
   @Column()
   email: string;

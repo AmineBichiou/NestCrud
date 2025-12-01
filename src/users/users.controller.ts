@@ -32,13 +32,11 @@ export class UserController {
     return this.userService.findActive();
   }
 
-  // ----------- UPDATE PARTIAL -----------
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.userService.update(id, dto);
   }
 
-  // ----------- REMOVE -----------
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);

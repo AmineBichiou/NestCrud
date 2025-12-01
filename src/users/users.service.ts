@@ -5,6 +5,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundException } from '@nestjs/common';
+import { ObjectID } from 'bson';
 
 @Injectable()
 export class UsersService {
@@ -32,13 +33,21 @@ export class UsersService {
   }
 
 async findOneById(id: string): Promise<User> {
-  const user = await this.userRepo.findOne({ where: { id } });
+  const ObjectId = new ObjectID(id);
+  const user = await this.userRepo.findOne({ where: { _id: ObjectId } });
   if (!user) {
     throw new NotFoundException('User not found');
   }
   return user;
 }
 
+// async findOneById(id: string): Promise<User> {
+//   const user = await this.userRepo.findOneBy(id);
+//   if (!user) {
+//     throw new NotFoundException('User not found');
+//   }
+//   return user;
+// } Methode 2 works too
 
   findOneByEmail(email: string) {
     return this.userRepo.findOneBy({ email });
