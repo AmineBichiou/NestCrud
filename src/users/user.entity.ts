@@ -14,6 +14,14 @@ export class User {
 
   @Column({ default: false })
   active: boolean;
+  @Column()
+  role: string;
+
+  @Column()
+createdAt: Date;
+
+@Column()
+updatedAt: Date;
 
   @BeforeInsert()
   beforeInsertActions() {

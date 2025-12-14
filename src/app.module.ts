@@ -14,17 +14,19 @@ import { User } from './users/user.entity';
 
 
 
+
 @Module({
-  imports: [UsersModule,MessagesModule, MoteurModule, AudioModule, GenerateurModule, PhareModule, 
-    VehiculeModule,
+  imports: [
     TypeOrmModule.forRoot({
-  type: 'mongodb',
-  host: 'localhost',
-  port: 27017,
-  database: 'test',
-  entities: [Message,User],
-  synchronize: true,
-})],
+      type: 'mongodb',               
+      host: 'localhost',              
+      port: 27017,                  
+      database: 'test',              
+      entities: [User],                
+      synchronize: true,            
+    }),
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
